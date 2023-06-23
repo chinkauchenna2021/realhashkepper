@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 function Nfts() {
   const navigate = useNavigate();
   const [get_availableNfts, setGetAvailableNfts] = useState([]);
+  const [saveSingleNft , setSaveSingleNft] = useLocalStorage('singleNft' , {})
   const [saveUsersDetails, setSavedUsersDetails] = useLocalStorage(
     "usersDetails",
     { valueData: {}, isLoggedin: false }
@@ -34,15 +35,19 @@ function Nfts() {
             }/nfts`
           )
           .then((res) => res.data);
-        if (users_nft_info.nfts.length !== 0) {
-          for (let i = 0; i < users_nft_info.nfts.length; i++) {
-            if (
-              users_nft_info.nfts[i].account_id ==
-                saveUsersDetails.valueData.accountID &&
-              users_nft_info.nfts[i].account_id != null
-            ) {
+         
+          if (users_nft_info?.nfts.length !== 0) {
+            
+            // for (let j = 0; j < users_nft_info.nfts.length; j++) {
+              users_nft_info.nfts.forEach(async(items,index)=>{
+                if (
+                  items.account_id ==
+                  saveUsersDetails.valueData.accountID  
+                  ) {
+                  console.log(items)
+              console.log("available nft values", items)
               const metadata = Buffer.from(
-                users_nft_info.nfts[i].metadata,
+                items.metadata,
                 "base64"
               ).toLocaleString();
               const fulldata = metadata.split("//")[1];
@@ -53,8 +58,8 @@ function Nfts() {
               const fulldata_img = response.data.image.split("//")[1];
 
               let data = {
-                owner: users_nft_info[i].account_id,
-                token_ids: users_nft_info[i].token_id,
+                owner: items.account_id,
+                token_ids:items.token_id,
                 image: import.meta.env.VITE_CLOUD_FLARE + fulldata_img,
                 name: response.data.name,
                 description: response.data.description,
@@ -65,12 +70,13 @@ function Nfts() {
 
               available_nft.push(data);
             }
-          }
-          setGetAvailableNfts(available_nft);
+            setGetAvailableNfts([...available_nft]);
+          })
         }
       }
+      
     })();
-  }, [setGetAvailableNfts, nftIds]);
+  }, []);
 
   const getAllUsersNFTs = async () => {
     const users_id = saveUsersDetails?.valueData.id;
