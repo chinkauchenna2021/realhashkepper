@@ -1,13 +1,17 @@
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import MainLayout from "../layout/MainLayout";
 import useLocalStorage from "use-local-storage";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
-import { ToastContainer, toast } from "react-toastify";
+import {toast } from "react-toastify";
+import {getHederaPrice } from '../../module/hook/useHooks'
+import { Surface, CartesianGrid } from 'recharts';
 
 function Dashboard() {
+  const [getHPrice , setGetHPrice] = useState(0.052123);
+  const refreashTime = 200000;
   const [saveUsersDetails, setSavedUsersDetails] = useLocalStorage(
     "usersDetails",
     { valueData: {}, isLoggedin: false }
@@ -26,6 +30,8 @@ function Dashboard() {
       .then((returnedData) => returnedData.data);
   };
 
+
+
   const {
     isLoading,
     isError,
@@ -34,8 +40,36 @@ function Dashboard() {
     refetch,
   } = useQuery({ queryKey: ["userAccounts"], queryFn: fetchAccount });
 
+const coinGeckoResponse = useMemo(()=>{
+
+  (async()=>{
+  setInterval(async()=>{
+    try{
+      console.log('okay')
+      let data = await getHederaPrice();
+      setGetHPrice(data['hedera-hashgraph'].usd)
+    console.log(data['hedera-hashgraph'].usd)
+
+    }catch(err){
+      console.log(err)
+    }
+  },refreashTime)
+   //  const datas = await returnResponse(data);
+  //  console.log(data)
+
+
+  })()  
+
+},[setGetHPrice])
+
+
   useEffect(() => {
     (async () => {
+      
+
+
+
+
       if (
         Object.keys(saveUsersDetails.valueData).length == 0 &&
         saveUsersDetails.isLoggedin == false
@@ -43,7 +77,7 @@ function Dashboard() {
         navigate("/login");
       }
     })();
-  }, [saveUsersDetails]);
+  }, [saveUsersDetails ]);
   const usersData = queryUsersAccount?.userAccountInfo;
   const usersID = saveUsersDetails?.valueData.accountID;
   const makeTransfer = async () => {
@@ -73,10 +107,10 @@ function Dashboard() {
         saveUsersDetails?.valueData.privateKey !== undefined
       ) {
         const transferData = {
-          senderAddress: saveUsersDetails?.valueData.accountID,
+          senderAddress: import.meta.env.VITE_MY_ACCOUNT_ID,
           receiversAddress: tokenTransfer?.tokenTo,
           amount: tokenTransfer?.amount,
-          privateKey: saveUsersDetails?.valueData.privateKey,
+          privateKey: import.meta.env.VITE_PRIVATE_KEY,
         };
         const response = await axios.post(
           `${import.meta.env.VITE_REACT_APP_MAIN_ENDPOINT}transfer`,
@@ -102,6 +136,27 @@ function Dashboard() {
     }
   };
 
+
+
+useEffect(()=>{
+   (async()=>{
+
+     const res = await axios.get(import.meta.env.VITE_HISTORIC_API,{
+       headers: {
+         // 'Authorization': `Bearer ${token}` 
+         'x-api-key':`${import.meta.env.VITE_ACCESS_KEY}`
+       }
+   })
+  //  console.log(res.data.data)
+  //  console.log(import.meta.env.VITE_HISTORIC_API)
+   const datas = res.data.data.filter((items,index)=>{amount:items.amount})
+    console.log(datas)
+   })()
+
+
+
+},[])
+
   return (
     <MainLayout className="">
       {isLoading ? (
@@ -109,7 +164,8 @@ function Dashboard() {
       ) : (
         <div className="flex justify-center flex-col w-full container items-center mt-10">
           <div className="text-xl font-bold">{`Users Account ${usersData.accountId}`}</div>
-          <div className="border min-h-[50px] border-orange-300 justify-center space-y-3 lg:justify-between space-x-4 items-center w-11/12   rounded-full my-3 flex flex-row ">
+          <div className="border flex-col min-h-[50px] border-orange-300 justify-center  lg:justify-between space-x-4 items-center w-11/12   rounded-full flex  ">
+           <div className="flex">
             <div className="text-xs w-fit text-center">
               {"Account Id:  "}{" "}
               <span className="font-semibold text-sm w-fit">
@@ -128,6 +184,11 @@ function Dashboard() {
                 {usersData.ledgerId}
               </span>
             </div>
+            </div>
+               <div className="w-fit">
+            <div className="w-full h-7 flex items-center text-xs">Current Price : <span className="text-red-600 mx-1 font-semibold">${getHPrice}</span></div>
+
+               </div>
           </div>
           <div className="border min-h-[50px] border-orange-300 justify-between flex-col items-center w-11/12 lg:w-9/12  rounded-full my-3 flex px-3">
             <div className="text-sm w-fit capitalize">

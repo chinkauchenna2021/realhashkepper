@@ -35,8 +35,8 @@ const {
 } = require("@hashgraph/sdk");
 
 //Grab your Hedera testnet account ID and private key from your .env file
-const myAccountId = process.env.MY_ACCOUNT_ID;
-const myPrivateKey = process.env.MY_PRIVATE_KEY;
+const myAccountId =AccountId.fromString(process.env.MY_ACCOUNT_ID);
+const myPrivateKey = PrivateKey.fromString(process.env.MY_PRIVATE_KEY);
 
 // If we weren't able to grab it, we should throw a new error
 if (!myAccountId || !myPrivateKey) {
@@ -238,21 +238,20 @@ const atomicBuyNFTWithNFT = async (req, res) => {
 
 const atomicBuyNFTWithToken = async (req, res) => {
   //Atomic swap between a Hedera Token Service token and hbar
-  const { usersId, receiverAccount, receiversAddressKey } = req.body;
-  connection.query(
-    "SELECT * FROM saleorder WHERE usersId = ?",
+  const { usersId, receiverAccount, receiversAddressKey} = req.body;
+  
+   connection.query(
+    "SELECT * FROM saleorder WHERE userTokenId = ?",
     [usersId],
     async function (error, results, fields) {
-      if (error)
-        return res.status(404).json({
-          message: "encountered error while inserting in SALES-ORDER",
-        });
-      // res.status(200).json({ message: "sent successfully" });
-      const senderAccount = results[0].senderAccount;
+      if (error) return console.log("error found ", error);
+      res.status(200).json({ message: "found sales", data: results });
+      if(results.length == 0)return res.status(201).json({error_message :"not found"});
+      const senderAccount = AccountId.fromString(results[0].senderAccount);
       const nftToken = results[0].nftToken;
       const userTokenId = results[0].userTokeId;
-      const senderAccountKey = results[0].senderAccountKey;
-
+      const senderAccountKey = PrivateKey.fromString(results[0].senderAccountKey);
+ 
       const atomicSwap = await new TransferTransaction()
         .addHbarTransfer(receiverAccount, new Hbar(Number(-amount)))
         .addHbarTransfer(senderAccount, new Hbar(Number(amount)))
@@ -263,14 +262,13 @@ const atomicBuyNFTWithToken = async (req, res) => {
       //Sign the transaction with accountId1 and accountId2 private keys, submit the transaction to a Hedera network
       const txId = await (
         await (
-          await atomicSwap.sign(senderAccountKey)
-        ).sign(receiversAddressKey)
+          await atomicSwap.sign(receiverAccount)
+        ).sign(senderAccountKey)
       ).execute(client);
       if (txId) {
         res.status(200).json({ message: true });
       }
-    }
-  );
+    });
 };
 
 const transferHbar = async (req, res) => {
@@ -282,7 +280,7 @@ const transferHbar = async (req, res) => {
 
   const amount_to_number = Number(amount);
   const transaction = new TransferTransaction()
-    .addHbarTransfer(addressFrom, new Hbar(-amount_to_number))
+    .addHbarTransfer(addressFrom, new Hbar(amount_to_number).negated)
     .addHbarTransfer(accountWithPadding, new Hbar(amount_to_number))
     .freezeWith(client);
 
@@ -367,6 +365,25 @@ const usersNftInfo = async (req, res) => {
   res.status(200).json({ message: "nft info", data: nftInfos });
 };
 
+
+
+
+const getSalesById = (req, res) => {
+  const { usersId } = req.body;
+  connection.query(
+    "SELECT * FROM saleorder WHERE usersId = ?",
+    [usersId],
+    function (error, results, fields) {
+      if (error) return console.log("error found ", error);
+      res.status(200).json({ message: "found sales", data: results });
+    }
+  );
+};
+
+
+
+
+
 const getIdByPassword = (req, res) => {
   const { password } = req.body;
   connection.query(
@@ -412,18 +429,17 @@ const transferNFT = async (req, res) => {
     receiverId,
     token_serial_number,
     sendersPrivateKey,
-    receiverKeys,
+    receiverKeys
   } = req.body;
 
-  console.log(req.body);
   const senderID = AccountId.fromString(senderId);
   const receiversID = AccountId.fromString(receiverId);
-  const operatorID = PrivateKey.fromString(sendersPrivateKey);
-  const token_number = Number(token_serial_number);
-  const receiveKeys = PrivateKey.fromString(receiverKeys);
-
+  const operatorID = PrivateKey.fromString(String(sendersPrivateKey));
+  const token_number = parseInt(token_serial_number);
+  const receiveKeys = PrivateKey.fromString(String(receiverKeys.toString()));
+  const accountWithPadding = await addressPadding(receiverId);
   let associate = await new AccountUpdateTransaction()
-    .setAccountId(receiversID)
+    .setAccountId(accountWithPadding)
     .setMaxAutomaticTokenAssociations(100)
     .freezeWith(client)
     .sign(receiveKeys);
@@ -431,17 +447,20 @@ const transferNFT = async (req, res) => {
   let associat = await associateTxSub.getReceipt(client);
   console.log(`Alice NFT Auto-Association: ${associat.status} \n`);
 
-  let tokenTransferTx = await new TransferTransaction()
-    .addNftTransfer(senderNFTId, token_number, senderID, receiversID)
+  let tokenTransferTx =  new TransferTransaction()
+    .addNftTransfer(senderNFTId, token_number, senderID, accountWithPadding)
     .freezeWith(client)
-    .sign(operatorID);
-  let tokenTransferSubmit = await tokenTransferTx.execute(client);
+  
+  let tokensigner = await tokenTransferTx.sign(operatorID);
+  let tokenTransferSubmit = await tokensigner.execute(client);
   let tokenTransferRx = await tokenTransferSubmit.getReceipt(client);
   console.log(
     `\n NFT transfer Treasury->Alice status: ${tokenTransferRx.status.toString()} \n`
   );
   res.status(200).json({ message: "transfered successfuly" });
 };
+
+
 
 const listNft = (req, res) => {
   const {
@@ -512,4 +531,5 @@ module.exports = {
   getIdByPassword,
   transferNFT,
   allListing,
+  getSalesById,
 };
