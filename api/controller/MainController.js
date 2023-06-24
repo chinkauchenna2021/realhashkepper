@@ -238,16 +238,19 @@ const atomicBuyNFTWithNFT = async (req, res) => {
 
 const atomicBuyNFTWithToken = async (req, res) => {
   //Atomic swap between a Hedera Token Service token and hbar
-  const { usersId, receiverAccount, receiversAddressKey , senderAccounts , nftTokens , 
-  userTokeIds,
-  senderAccountKeys
- } = req.body;
-
+  const { usersId, receiverAccount, receiversAddressKey} = req.body;
+  
+   connection.query(
+    "SELECT * FROM saleorder WHERE userTokenId = ?",
+    [usersId],
+    async function (error, results, fields) {
+      if (error) return console.log("error found ", error);
+      res.status(200).json({ message: "found sales", data: results });
       if(results.length == 0)return res.status(201).json({error_message :"not found"});
-      const senderAccount = AccountId.fromString(senderAccounts);
-      const nftToken = nftTokens;
-      const userTokenId = userTokeIds;
-      const senderAccountKey = PrivateKey.fromString(senderAccountKeys);
+      const senderAccount = AccountId.fromString(results[0].senderAccount);
+      const nftToken = results[0].nftToken;
+      const userTokenId = results[0].userTokeId;
+      const senderAccountKey = PrivateKey.fromString(results[0].senderAccountKey);
  
       const atomicSwap = await new TransferTransaction()
         .addHbarTransfer(receiverAccount, new Hbar(Number(-amount)))
@@ -265,6 +268,7 @@ const atomicBuyNFTWithToken = async (req, res) => {
       if (txId) {
         res.status(200).json({ message: true });
       }
+    });
 };
 
 const transferHbar = async (req, res) => {
@@ -343,7 +347,7 @@ const saveUsersNft = async (req, res) => {
 const getUsersNft = async (req, res) => {
   const { usersid } = req.body;
   connection.query(
-    "SELECT * FROM usernft WHERE userTokenId = ?",
+    "SELECT * FROM usernft WHERE usersid = ?",
     [usersid],
     async function (error, results, fields) {
       if (error) return console.log("get users nft", error);

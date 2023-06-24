@@ -6,33 +6,31 @@ import {toast } from "react-toastify";
 
 function ListingNft() {
   const [allListing , setAllListing] = useState([]);
-
+  // /swapNftWithToken
+  const [saveSingleNft , setSaveSingleNft] = useLocalStorage('singleNft');
   const [saveUsersDetails, setSavedUsersDetails] = useLocalStorage(
     "usersDetails");
 
 
   useEffect(()=>{
    (async()=>{     
-    const response_id =  await axios.get(`${import.meta.env.VITE_REACT_APP_MAIN_ENDPOINT}`)
-
-
  const response =  await axios.get(`${import.meta.env.VITE_REACT_APP_MAIN_ENDPOINT}getallListings`)
 setAllListing(response.data.results);
 console.log(response.data.results)
    })()
   },[])
     
-const swapping = async ()=>{ //swapp clean function
+const swapping = async (index)=>{ //swapp clean function
   // getSalesbyid
   try{
-    console.log("clicked")
         const data = {
-          usersId:saveUsersDetails?.valueData.id , 
+          usersId:index , 
           receiverAccount:saveUsersDetails?.valueData.accountID,
           receiversAddressKey:saveUsersDetails?.valueData.privateKey,
         }
-       const swap_response  = await axios.post(`${import.meta.env.VITE_REACT_APP_MAIN_ENDPOINT}swapNftWithToken`, data).the(resp=>resp.data);
-     if(swap_response.status == 200){
+        const swap_response  = await axios.post(`${import.meta.env.VITE_REACT_APP_MAIN_ENDPOINT}swapNftWithToken`, data).then(resp=>resp.data);
+        console.log(swap_response , index)
+       if(swap_response.status == 200){
       toast("nft swap successfully", {
         position: "top-right",
         autoClose: 5000,
@@ -58,7 +56,7 @@ const swapping = async ()=>{ //swapp clean function
     
 
   }catch(error){
-    
+    console.log(error)
   }
    
 
@@ -91,7 +89,7 @@ const swapping = async ()=>{ //swapp clean function
                        border-orange-300 bg-orange-400 text-md text-white font-bold my-1
                        rounded-lg
                       "
-                      onClick={()=>swapping()}
+                      onClick={()=>swapping(items.userTokenId )}
                       >swap</button>
                    </div>   
                   </div>
