@@ -26,7 +26,7 @@ const listingPage = async()=>{
     senderAccount:localdbNft?.owner,
     nftToken:localdbNft?.token_ids,
     userTokenId:localdbNft?.edition,
-    senderAccountKey:localdbNft?.owner,
+    senderAccountKey:saveSingleNft?.valueData.privateKey,
     requestAmount:requestAmount?.amount,
     receiverAccount:"",
     status:0,

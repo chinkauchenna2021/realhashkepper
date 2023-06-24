@@ -19,14 +19,16 @@ function TransferNft() {
 if(getReceiversId?.enterPrivateKey !== undefined && saveUsersDetails?.valueData.privateKey !== undefined
    &&  saveUsersDetails?.valueData.accountID !== undefined
    ){
+
 const send_data ={
-    senderId:saveUsersDetails?.valueData.accountID,
+    senderId:import.meta.env.VITE_MY_ACCOUNT_ID,
     senderNFTId:import.meta.env.VITE_MY_NFT_MINTING_ID,
     receiverId:getReceiversId?.receiversid,
-    token_serial_number:saveSingleNft.edition,
-    sendersPrivateKey:saveUsersDetails?.valueData.privateKey,
+    token_serial_number:saveSingleNft?.edition,
+    sendersPrivateKey:import.meta.env.VITE_PRIVATE_KEY,
     receiverKeys:getReceiversId?.enterPrivateKey
 }
+console.log(send_data)
 const sent_response = await axios.post(`${import.meta.env.VITE_REACT_APP_MAIN_ENDPOINT}transferNft`, send_data).then(res=>res.data);
   if(sent_response.status == 200){
       console.log(sent_response.data);
@@ -44,7 +46,7 @@ const sent_response = await axios.post(`${import.meta.env.VITE_REACT_APP_MAIN_EN
                 <img src={saveSingleNft?.image} className="w-24 rounded-full h-[100px]" />
             </div>
             <div className="w-full h-fit flex flex-col justify-center items-center space-y-3">
-                <div className="w-fit text-xs font-semibold flex">
+                 <div className="w-fit text-xs font-semibold flex">
                     Name: <span className="px-2 text-red-300">{saveSingleNft?.name}</span>
                 </div>
                 <div className="w-fit text-xs font-semibold flex">
@@ -57,7 +59,7 @@ const sent_response = await axios.post(`${import.meta.env.VITE_REACT_APP_MAIN_EN
             </div>
             <div className="w-full p-2 flex flex-col justify-center items-center space-y-3">
                 <input onChange={(e)=>setGetRececieversId((previousData)=>({...previousData ,receiversid:e.target.value }))} type="text" placeholder="Enter senders Account" className="rounded-sm text-sm px-2 w-[200px] h-8 outline-none border border-orange-200 " />
-                <input onChange={(e)=>setGetRececieversId((previousData)=>({...previousData ,enterPrivateKey:e.target.value }))} type="text" placeholder="Receivrs Private Key" className="rounded-sm text-sm px-2 w-[200px] h-8 outline-none border border-orange-200 " />
+                <input onChange={(e)=>setGetRececieversId((previousData)=>({...previousData ,enterPrivateKey:e.target.value }))} type="text" placeholder="Receivers Private Key" className="rounded-sm text-sm px-2 w-[200px] h-8 outline-none border border-orange-200 " />
                 <button onClick={()=>sendNft()} type="button" className=" outline-none h-6 w-[200px] bg-orange-300 rounded-lg text-sm text-white font-semibold">Transfer Nft</button>
             </div>
 
