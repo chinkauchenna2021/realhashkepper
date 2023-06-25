@@ -1,7 +1,5 @@
-const mongoRegistration = require("../modules/schemas/RegisterSchema.js");
 const { addressPadding } = require("../hooks/useStore.js");
-const Moralis = require("moralis").default;
-const { EvmChain } = require("@moralisweb3/common-evm-utils");
+require('dotenv').config()
 const mysql = require("mysql");
 const {
   Wallet,
