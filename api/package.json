@@ -2,10 +2,10 @@
   "name": "extensionapi",
   "version": "1.0.0",
   "description": "",
-  "main": "./src/app.js",
+  "main": "src/app.js",
   "scripts": {
-    "start": "node --experimental-modules  ./src/app.js",
-    "dev": "nodemon --experimental-modules  ./src/app.js"
+    "start": "node --experimental-modules  src/app.js",
+    "dev": "nodemon --experimental-modules  src/app.js"
   },
   "keywords": [],
   "author": "",
