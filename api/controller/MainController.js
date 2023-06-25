@@ -46,10 +46,10 @@ if (!myAccountId || !myPrivateKey) {
 }
 
 const connection = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "HaderaCollection",
+  host: "sql8.freemysqlhosting.net",
+  user: "sql8628533",
+  password:"jwPyzgvVnT",
+  database: "sql8628533",
 });
 
 //Create your Hedera Testnet client
