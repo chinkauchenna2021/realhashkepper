@@ -16,6 +16,8 @@ import SingleNft from '../components/SingleNft';
 import Nothing from '../components/Nothing';
 import { ToastContainer, toast } from "react-toastify";
 import Loading from '../components/Loading';
+import { Buffer } from "buffer";
+
 
 
 const yourNfts = [
@@ -29,6 +31,8 @@ function Nfts() {
     const[loading, setLoading]=useState(false)
     const [nftIds, setNftsIds] = useState({ nftid: "" });
     const [items , setItems] = useState();
+    const [nftImport, setNFtImport] = useState(false);
+    const [nftImportValue, setNFtImportValue] = useState(false);
     const [showListInput, setShowListInput] = useState(false);
     const[data, setData]=useState("all")
     const [get_availableNfts, setGetAvailableNfts] = useState([]);
@@ -118,9 +122,6 @@ function Nfts() {
   
       })();
     }, []);
-    console.log("get_availableNfts");
-    console.log(get_availableNfts);
-
    
     // all usersnfts
     const getAllUsersNFTs = async () => {
@@ -129,19 +130,17 @@ function Nfts() {
         usersId: users_id,
         usersNftId: nftIds.nftid,
       };
-      if (nftIds.nftid == "") return toast(
-        'Input can not be empty',
-        {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "dark",
-        }
-      );
+      console.log(nftIds.nftid);
+      if (nftIds.nftid == "") return toast("input can not be empty", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
       const split_NFT_id = nftIds.nftid.split(".");
       if (split_NFT_id[1] !== "0") return toast("wrong input", {
         position: "top-right",
@@ -157,22 +156,22 @@ function Nfts() {
         `${import.meta.env.VITE_REACT_APP_MAIN_ENDPOINT}saveNft`,
         saveNfts
       );
-      console.log(user_saveNft.status)
-  if(user_saveNft.status == 200){
-    toast("checking for availbility", {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-    });
-     window.location.reload();
-  }
+      console.log(user_saveNft.status);
+      console.log(user_saveNft);
+      if (user_saveNft.status == 200) {
+        toast("Checking for availability", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+        window.location.reload();
+      }
     };
-    const navigate = useNavigate();
   return (
     <MainLayout>
     <NavBar title="NFTs" backArrow={<MdArrowBack size={18} className='text-white' />} />
@@ -221,7 +220,24 @@ function Nfts() {
 
         {/* THIS IS FOR YOUR NFTS */}
         {link === "yours" &&
-            <motion.div onClick={() => setShow(true)} className="cursor-pointer" initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: "100%" }} exit={{ opacity: 0, x: window.innerWidth, transition: { duration: 1 } }}>
+        <>
+        {!nftImport &&<div className="w-full pt-8 flex flex-col justify-center items-center">
+          <input type="text" placeholder='Enter Account ID' className='h-[45px] w-[90%] border-[1px] text-white focus:outline-0 px-3 bg-transparent border-[#131313] rounded-lg' 
+          onChange={(e) =>
+            setNftsIds((previousData) => ({
+              ...previousData,
+              nftid: e.target.value,
+            }))
+          }
+          />
+          <button onClick={() =>{setNFtImport(true); getAllUsersNFTs()}} className='h-fit w-[90%] mt-3 py-3 font-extrabold bg-[#00ff95] text-black rounded-lg text-sm'>
+            IMPORT
+          </button>
+          <button onClick={() => setNFtImport(false)} className='h-fit w-[90%] mt-3 py-3 font-extrabold bg-[#ff0000] text-white rounded-lg text-sm'>
+            CANCEL
+          </button>
+        </div>}
+            {nftImport &&<motion.div onClick={() => setShow(true)} className="cursor-pointer" initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: "100%" }} exit={{ opacity: 0, x: window.innerWidth, transition: { duration: 1 } }}>
                 {yourNfts.length >= 1 ?
                     <div className='w-full flex flex-col'>
                         <div className='grid grid-cols-2 gap-[5px] self-center'>
@@ -245,7 +261,8 @@ function Nfts() {
                     </div>
                     :
                     <Nothing msg1={"No Nfts yet"} msg2={"Add NFT"} />}
-            </motion.div>
+            </motion.div>}
+        </>
         }
 
     </S.ScrollBar>

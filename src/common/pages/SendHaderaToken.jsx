@@ -27,18 +27,16 @@ function SendHaderaToken() {
     const [value] = useLocalStorage("usersDetails", undefined)
     const {valueData}= value
     
-
-    const usersID = valueData.accountID;
-
     const makeTransfer = async () => {
         setTokenTransfer((previousData) => ({
           ...previousData,
-          tokenFrom: usersID,
+          tokenFrom: import.meta.env.VITE_MY_ACCOUNT_ID,
         }));
+    
         if (
-          tokenTransfer.tokenTo == "" ||
-          tokenTransfer.tokenFrom == "" ||
-          tokenTransfer.amount == ""
+          tokenTransfer?.tokenTo == "" ||
+          tokenTransfer?.tokenFrom == "" ||
+          tokenTransfer?.amount == ""
         ) {
           toast("input can  not be Empty", {
             position: "top-right",
@@ -50,31 +48,38 @@ function SendHaderaToken() {
             progress: undefined,
             theme: "dark",
           });
-        }
+        } else {
+          if (
+            valueData.accountID !== undefined &&
+            valueData.privateKey !== undefined
+          ) {
+            const transferData = {
+              senderAddress: import.meta.env.VITE_MY_ACCOUNT_ID,
+              receiversAddress: tokenTransfer?.tokenTo,
+              amount: tokenTransfer?.amount,
+              privateKey: import.meta.env.VITE_PRIVATE_KEY,
+            };
+            const response = await axios.post(
+              `${import.meta.env.VITE_REACT_APP_MAIN_ENDPOINT}transfer`,
+              transferData
+            );
     
-        const transferData = {
-          senderAddress: tokenTransfer.tokenFrom,
-          receiverAddress: tokenTransfer.tokenTo,
-          amount: tokenTransfer.amount,
-        };
-        const response = await axios.post(
-          `${import.meta.env.VITE_REACT_APP_MAIN_ENDPOINT}transfer`,
-          transferData
-        );
-        if (response.status == 200) {
-          toast(
-            `🤝 transfer of ${tokenTransfer.amount} to ${tokenTransfer.tokenTo} `,
-            {
-              position: "top-right",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "dark",
+            if (response.status == 200) {
+              toast(
+                `🤝 transfer of ${tokenTransfer.amount} to ${tokenTransfer.tokenTo} `,
+                {
+                  position: "top-right",
+                  autoClose: 5000,
+                  hideProgressBar: false,
+                  closeOnClick: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                  progress: undefined,
+                  theme: "dark",
+                }
+              );
             }
-          );
+          }
         }
       };
 

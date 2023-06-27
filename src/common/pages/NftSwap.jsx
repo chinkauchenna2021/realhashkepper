@@ -58,7 +58,7 @@ function NftSwap() {
                             <div className='flex items-center justify-center absolute left-[50%] translate-x-[-50%] bottom-[-15px] h-[27px] w-[100px] rounded-xl bg-white text-center text-xs font-bold'>
                                 {"0.0.234545"}
                             </div>
-                            <img src={value.image} className='h-full w-full object-cover rounded-[28px]' alt="" />
+                            <img src={value?.image} className='h-full w-full object-cover rounded-[28px]' alt="" />
                         </div>
                     </div>
 
@@ -66,8 +66,8 @@ function NftSwap() {
                         <div className='flex flex-col w-full p-3 bg-[rgb(18,18,19)] rounded-2xl'>
                             <div className='w-full mx-auto flex '>
                                 <div className='w-1/2 h-12'>
-                                    <p className='text-xs'>{value.name}</p>
-                                    <h4 className='font-bold'>{value.creator }</h4>
+                                    <p className='text-xs'>{value?.name}</p>
+                                    <h4 className='font-bold'>{value?.creator }</h4>
                                 </div>
                                 <div className='w-1/2 h-12 flex justify-end'>
                                     <div className='h-10 w-10 rounded-xl overflow-hidden translate-x-3 shadow-[0px_0px_0px_4px_rgb(18,18,19)]'>
@@ -80,7 +80,7 @@ function NftSwap() {
                             </div>
                             <div className='w-full mx-auto flex'>
                                 <div className='w-1/2 h-9 flex items-center'>Token ID</div>
-                                <div className='w-1/2 h-9 flex items-center justify-end font-bold'>{value.token_ids}</div>
+                                <div className='w-1/2 h-9 flex items-center justify-end font-bold'>{value?.token_ids}</div>
                             </div>
                         </div>
                     </div>
