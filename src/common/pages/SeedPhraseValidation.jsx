@@ -9,19 +9,13 @@ import useLocalStorage from "use-local-storage";
 
 
 
-import CopyToClipboardButton from '../components/CopyToClipboardButton'
 
 function SeedPhraseValidation() {
     const [matchingSeed, setMatchingSeed] = useState({ "input3": "", "input5": "", "input7": "" });
     const [value] = useLocalStorage("usersDetails", undefined)
     const {valueData}= value
     const navigate=useNavigate()
-
-      console.log(valueData);
     const splitted_seedphrase = valueData.seedPhrase.split(" ")
-    console.log(splitted_seedphrase[2])
-
-    const clipboard= ""
     const num=[2, 4,6]
 
     function change(e){
@@ -29,11 +23,6 @@ function SeedPhraseValidation() {
     }
     
      function handleBlur(e){
-      let name=e.target.name
-      console.log("e.target.id");
-      console.log(e.target.id);
-      console.log(matchingSeed);
-      console.log(splitted_seedphrase[e.target.id]);
       if(splitted_seedphrase[e.target.id]===e.target.value){
         return toast("input matched", {
           position: "top-right",

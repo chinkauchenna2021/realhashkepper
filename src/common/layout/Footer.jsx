@@ -23,7 +23,7 @@ function Footer() {
 
     console.log(nav);
   return (
-      <div className={`${(pathname == '/seedphrasevalidation'||pathname == '/register'||pathname == '/seedphrase'||pathname == '/login'||pathname == '/welcome') && 'hidden'} w-full h-fit pop-up bg-black/60 bg-opacity-80 backdrop-filter py-3 flex justify-center items-center rounded-tr-xl rounded-tl-xl absolute bottom-0 right-0`}>
+      <div className={`${(pathname == '/seedphrasevalidation'||pathname == '/register'||pathname == '/seedphrase'||pathname == '/login'||pathname == '/') && 'hidden'} w-full h-fit pop-up bg-black/60 bg-opacity-80 backdrop-filter py-3 flex justify-center items-center rounded-tr-xl rounded-tl-xl absolute bottom-0 right-0`}>
       {/* // <div className={`${pathname == '/' && 'hidden'} ${pathname == '/seedphrasevalidation' && 'hidden'} w-[100%] h-fit py-1 flex items-center justify-center pop-up bg-[#0d0d0e00] bg-opacity-80 backdrop-filter rounded-[10px] absolute bottom-0 right-0`}> */}
           <GlobalStyling />
           <div className='h-full w-full text-md font-base tracking-wide text-slate-700 flex flex-row justify-evenly items-center space-x-7'>

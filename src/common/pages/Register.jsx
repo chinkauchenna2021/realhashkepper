@@ -48,7 +48,6 @@ function Register() {
     validationSchema,
     onSubmit: (values) => {
       // Handle form submission
-      console.log(values);
     },
 
   });

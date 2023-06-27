@@ -1,13 +1,31 @@
 /* eslint-disable no-unused-vars */
-import React from 'react'
+import React, {useEffect} from 'react'
 import MainLayout from '../layout/MainLayout'
 import { GlobalStyling } from '../globalStyles/Global'
 import * as S from "./style/Styles"
 import { useNavigate } from 'react-router-dom'
 import logo from "../../assets/logo.png"
+import useLocalStorage from "use-local-storage";
+
 
 
 function Welcome() {
+  const [saveUsersDetails, setSavedUsersDetails] = useLocalStorage(
+    "usersDetails",
+    { valueData: {}, isLoggedin: false }
+  );
+  useEffect(() => {
+    (async () => {
+      if (
+        Object.keys(saveUsersDetails.valueData).length != 0 &&
+        saveUsersDetails.isLoggedin == true
+      ) {
+        navigate("/home");
+      }
+    })();
+  }, [saveUsersDetails]);
+
+  
   const navigate=useNavigate()
 
   return (

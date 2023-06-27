@@ -17,6 +17,7 @@ import Charts from '../components/Charts'
 import Login from '../pages/Login'
 import NftSwap from '../pages/NftSwap'
 import IInput from '../pages/IInput'
+import SendHaderaToken from '../pages/SendHaderaToken'
 // import TokenSwap from '../pages/TokenSwap'
 function MainRouter() {
   return (
@@ -33,7 +34,8 @@ function MainRouter() {
               <Route path='/seedphrasevalidation' element={<SeedPhraseValidation />} />
               {/* <Route path='/accountname' element={<AccountName />} /> */}
               <Route path='/activities' element={<Activities />} /> 
-              <Route path='/send' element ={<SendHadera/>} /> 
+              {/* <Route path='/send' element ={<SendHadera/>} />  */}
+              <Route path='/send' element ={<SendHaderaToken/>} /> 
               <Route path='/NFT' element ={<Nfts/>} /> 
               {/* <Route path='/progress' element ={<ProgressBar/>} />  */}
               <Route path='/governance' element ={<Governance/>} /> 

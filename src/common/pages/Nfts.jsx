@@ -8,11 +8,8 @@ import { GlobalStyling } from '../globalStyles/Global'
 import NavBar from '../layout/NavBar';
 import { useNavigate } from 'react-router-dom';
 import { BottomSheet } from 'react-spring-bottom-sheet'
-import AllNfts from './AllNfts';
 import {motion} from "framer-motion"
 import useLocalStorage from "use-local-storage";
-import { Tooltip } from 'react-tooltip'
-import { Buffer } from "buffer";
 import { MdArrowBack } from "react-icons/md";
 import axios from 'axios';
 import SingleNft from '../components/SingleNft';
@@ -29,7 +26,7 @@ function Nfts() {
     const[show, setShow]=useState(false)
     const[showInput, setShowInput]=useState(false)
     const[link, setLink]=useState("all")
-    const[loading, setLoading]=useState(true)
+    const[loading, setLoading]=useState(false)
     const [nftIds, setNftsIds] = useState({ nftid: "" });
     const [items , setItems] = useState();
     const [showListInput, setShowListInput] = useState(false);
@@ -49,74 +46,76 @@ function Nfts() {
     useEffect(() => {
       (async () => {
         const users_id = saveUsersDetails?.valueData.id;
-        if (users_id == "" || users_id===undefined) return toast("Please login ", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "dark",
-        });
-        const usersIds = {
-          usersid: users_id,
-        };
-        const get_UsersNft = await axios.post(
-          `${import.meta.env.VITE_REACT_APP_MAIN_ENDPOINT}getNft`,
-          usersIds
-        );
-        let available_nft = [];
-        for (let i = 0; i < get_UsersNft.data.data.length; i++) {
-          const users_nft_info = await axios
-            .get(
-              `${import.meta.env.VITE_HEDERA_BASE_URL_TESTNET}api/v1/tokens/${
-                get_UsersNft.data.data[i].nftid
-              }/nfts`
-            )
-            .then((res) => res.data);
-           
-            if (users_nft_info?.nfts.length !== 0) {
-              
-              // for (let j = 0; j < users_nft_info.nfts.length; j++) {
-                users_nft_info.nfts.forEach(async(items,index)=>{
-                  if (
-                    items.account_id ==
-                    saveUsersDetails.valueData.accountID  
-                    ) {
-                    console.log(items)
-                console.log("available nft values", items)
-                const metadata = Buffer.from(
-                  items.metadata,
-                  "base64"
-                ).toLocaleString();
-                const fulldata = metadata.split("//")[1];
-                const response = await axios.get(
-                  `${import.meta.env.VITE_CLOUD_FLARE}${fulldata}`
-                );
-  
-                const fulldata_img = response.data.image.split("//")[1];
-  
-                let data = {
-                  owner: items.account_id,
-                  token_ids:items.token_id,
-                  image: import.meta.env.VITE_CLOUD_FLARE + fulldata_img,
-                  name: response.data.name,
-                  description: response.data.description,
-                  creator: response.data.creator,
-                  type: response.data.type,
-                  edition: response.data.edition,
-                };
-  
-                available_nft.push(data);
+        if (users_id == "") return alert("no id provided");
+        try{
+          const usersIds = {
+            usersid: users_id,
+          };
+          const get_UsersNft = await axios.post(
+            `${import.meta.env.VITE_REACT_APP_MAIN_ENDPOINT}getNft`,
+            usersIds
+          );
+          console.log("get_UsersNft");
+          console.log(get_UsersNft);
+          let available_nft = [];
+          for (let i = 0; i < get_UsersNft.data.data.length; i++) {
+            const users_nft_info = await axios
+              .get(
+                `${import.meta.env.VITE_HEDERA_BASE_URL_TESTNET}api/v1/tokens/${
+                  get_UsersNft.data.data[i].nftid
+                }/nfts`
+              )
+              .then((res) => res.data);
+             
+              if (users_nft_info?.nfts.length !== 0) {
+                
+                // for (let j = 0; j < users_nft_info.nfts.length; j++) {
+                  users_nft_info.nfts.forEach(async(items,index)=>{
+                    if (
+                      items.account_id ==
+                      saveUsersDetails.valueData.accountID  
+                      ) {
+                      console.log(items)
+                  console.log("available nft values", items)
+                  const metadata = Buffer.from(
+                    items.metadata,
+                    "base64"
+                  ).toLocaleString();
+                  const fulldata = metadata.split("//")[1];
+                  const response = await axios.get(
+                    `${import.meta.env.VITE_CLOUD_FLARE}${fulldata}`
+                  );
+    
+                  const fulldata_img = response.data.image.split("//")[1];
+    
+                  let data = {
+                    owner: items.account_id,
+                    token_ids:items.token_id,
+                    image: import.meta.env.VITE_CLOUD_FLARE + fulldata_img,
+                    name: response.data.name,
+                    description: response.data.description,
+                    creator: response.data.creator,
+                    type: response.data.type,
+                    edition: response.data.edition,
+                  };
+    
+                  available_nft.push(data);
+                    }
+                setGetAvailableNfts([...available_nft]);
                 setLoading(false)
-              }
-              setGetAvailableNfts([...available_nft]);
-              // setSavedUsersDetails(false)
-            })
+              })
+            }
           }
+        }catch(err){
+          console.log("error ",err) 
+          setLoading(false)           
+        }finally{
+          setLoading(false)
+          console.log("object");
         }
-        
+
+    
+  
       })();
     }, []);
     console.log("get_availableNfts");
@@ -173,17 +172,6 @@ function Nfts() {
      window.location.reload();
   }
     };
-
-    
-    function showBottomSheet(items){
-      setShow(true); 
-      setItems(items)
-    }
-
-    function singleNft(e){
-      console.log(e.target);
-      // setShow(true)
-    }
     const navigate = useNavigate();
   return (
     <MainLayout>

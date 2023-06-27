@@ -5,27 +5,96 @@ import NavBar from '../layout/NavBar'
 import * as S from './style/Styles'
 import { GlobalStyling } from '../globalStyles/Global'
 import { BottomSheet } from 'react-spring-bottom-sheet'
-import { Tooltip } from 'react-tooltip'
 import 'react-spring-bottom-sheet/dist/style.css'
 import { MdArrowBack , MdSupervisedUserCircle , MdAccountBalanceWallet  , MdOutlineArrowDropDown , MdClose , MdAddCircle , MdRemoveCircle , MdInfo} from "react-icons/md";
+import { Tooltip } from 'react-tooltip'
 import 'react-tooltip/dist/react-tooltip.css';
 import "./style/scrollbar.css"
+import { ToastContainer, toast } from "react-toastify";
+import axios from "axios";
+import useLocalStorage from "use-local-storage";
+
+
+
 
 
 function SendHadera() {
     const [show, setShow] = useState(false);
     const [showMore, setShowMore] = useState(false);
+    const [tokenTransfer, setTokenTransfer] = useState({
+        tokenTo: "",
+        tokenFrom: "",
+        amount: 0,
+      });
+    const [value] = useLocalStorage("usersDetails", undefined)
+    const {valueData}= value
+    
+
+    const usersID = valueData.accountID;
+
+    const makeTransfer = async () => {
+        setTokenTransfer((previousData) => ({
+          ...previousData,
+          tokenFrom: usersID,
+        }));
+        if (
+          tokenTransfer.tokenTo == "" ||
+          tokenTransfer.tokenFrom == "" ||
+          tokenTransfer.amount == ""
+        ) {
+          toast("input can  not be Empty", {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
+        }
+    
+        const transferData = {
+          senderAddress: tokenTransfer.tokenFrom,
+          receiverAddress: tokenTransfer.tokenTo,
+          amount: tokenTransfer.amount,
+        };
+        const response = await axios.post(
+          `${import.meta.env.VITE_REACT_APP_MAIN_ENDPOINT}transfer`,
+          transferData
+        );
+        if (response.status == 200) {
+          toast(
+            `🤝 transfer of ${tokenTransfer.amount} to ${tokenTransfer.tokenTo} `,
+            {
+              position: "top-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "dark",
+            }
+          );
+        }
+      };
     console.log(show);
   return (
     <MainLayout>
-      <NavBar title={"send"} backArrow={<MdArrowBack size={18}  />} />
+      <NavBar title={"send"} backArrow={<MdArrowBack size={18} className='text-white' />} />
         <GlobalStyling />
         <S.ScrollBar className="w-full h-[450px] overflow-y-scroll">
               <div className=' w-full min-h-[50px] mt-4  flex-col justify-center items-center space-y-3 pb-5'>
                   <div className='w-full pt-3 text-xs uppercase text-white tracking-wider px-4 font-semibold'>Recipient</div>
                   <div className='w-full flex justify-center items-center'>
                       <div className='w-11/12 flex flex-row justify-between items-center  border border-slate-300 rounded-md px-2'>
-                          <input className='w-10/12 outline-none capitalize bg-transparent text-white h-10 rounded-md pr-3' placeholder='Enter name of recipient'/>
+                          <input className='w-10/12 outline-none capitalize bg-transparent text-white h-10 rounded-md pr-3' placeholder='Enter recipient account Id' 
+                          onChange={(e) => {setTokenTransfer((pastInput) => ({
+                                ...pastInput,
+                                tokenTo: e.target.value,
+                            }));console.log(tokenTransfer)}}
+                            />
                           <div className="capitalize font-semibold w-fit rounded-full px-4 py-2 bg-[#e11584]/90 text-orange-500 cursor-pointer text-white">paste</div>
                       </div>                     
                   </div>
@@ -47,7 +116,14 @@ function SendHadera() {
                   <div className='w-full pt-3  text-xs uppercase text-white bg-transparent tracking-wider px-4 font-semibold'>Amount to send</div>
                   <div className='w-full flex justify-center items-center'>
                       <div className='w-11/12 flex flex-row justify-between items-center  border border-slate-300 rounded-md px-2 '>
-                          <input className='w-full outline-none capitalize h-10 rounded-md text-white bg-transparent pr-3 ' placeholder='Enter HBAR Amount '/>
+                          <input className='w-full outline-none capitalize h-10 rounded-md text-white bg-transparent pr-3 ' placeholder='Enter HBAR Amount '
+                           onChange={(e) =>
+                            setTokenTransfer((pastInput) => ({
+                              ...pastInput,
+                              amount: e.target.value,
+                            }))
+                          }
+                          />
                           {/* <div className="capitalize font-semibold w-fit rounded-full px-4 py-2 bg-orange-200 text-orange-500 cursor-pointer">paste</div> */}
                       </div>
                       
@@ -74,7 +150,7 @@ function SendHadera() {
                       <div className='font-bold text-md  flex flex-row justify-center items-center text-white'>0.000300 HBAR <span className='text-xs px-1 text-white'>{"(~$0.0001)"}</span> <span className=''><MdOutlineArrowDropDown size={20} color='ffffff' /></span></div>
                   </div>
 
-                  <div className='w-full h-fit flex justify-center items-center py-2'>
+                  <div  className='w-full h-fit flex justify-center items-center py-2'>
                       <div className='rounded-md bg-[#e11584]/90 w-full h-10 flex justify-center items-center text-md font-bold capitalize tracking-wider text-slate-900/60 cursor-pointer text-white'>Review Transfer</div>
                   </div>
               </div>   
@@ -145,7 +221,7 @@ function SendHadera() {
                             </div>
                     </div> )  
                     }
-                    <div className="container w-full h-fit my-4">
+                    <div onClick={makeTransfer} className="container w-full h-fit my-4">
                         <button className="w-full h-10 rounded-md bg-[#e11584]/90 text-md text-white font-semibold outline-none ">Proceed</button>
                     </div>
 

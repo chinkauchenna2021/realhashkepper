@@ -6,15 +6,14 @@ import * as S from "./style/Styles"
 import { useNavigate } from 'react-router-dom'
 import { MdInfo} from "react-icons/md";
 import useLocalStorage from "use-local-storage";
-import { FiArrowLeft, FiEyeOff } from "react-icons/fi";
+import {FiEyeOff } from "react-icons/fi";
+import { ToastContainer, toast } from "react-toastify";
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 
-
-import CopyToClipboardButton from '../components/CopyToClipboardButton'
 
 function SeedPhrase() {
     const [value] = useLocalStorage("usersDetails", undefined)
-    const[copy, setCopy]= useState(false)
     const[seeSeedPhrase, setSeeSeedPhrase]=useState(false)
     const navigate=useNavigate()
     const {valueData}= value
@@ -22,7 +21,19 @@ function SeedPhrase() {
 
 
 
-    const clipboard= ""
+    const handleCopy = () => {
+      navigate("/seedphrasevalidation")
+      return toast("Seedphrase copied to clipboard", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+      });
+  };
     
     // const words = arr.split(' ');
 
@@ -57,14 +68,16 @@ function SeedPhrase() {
               </div>
             </div>
             :
-            <div onClick={() => setSeeSeedPhrase(true)} className='w-full h-[300px] flex items-center justify-center border mt-6 rounded-lg'>
-              <FiEyeOff size={30} className="text-white/25 cursor-pointer" />
+            <div className='w-full h-fit flex items-center justify-center'>
+              <div onClick={() => setSeeSeedPhrase(true)} className='w-[90%] h-[300px] flex items-center justify-center border mt-6 rounded-lg'>
+                <FiEyeOff size={30} className="text-white/25 cursor-pointer" />
+              </div>
             </div>
           }
 
           <div className='h-fit w-full absolute bottom-3 flex flex-col justify-center items-center gap-3 '>
             <div className="w-[80%] h-fit py-3 px-3 rounded-lg space-x-4 text-sm font-semibold tracking-wider text-white border cursor-pointer transition-[.5s] border-[#15e193] bg-[#15e19342] hover:bg-[#10e795]">
-              <CopyToClipboardButton text={clipboard} value={"Copy seedphrase"} />
+            <CopyToClipboard text={valueData?.seedPhrase} onCopy={handleCopy}><button>Copy to clipboard</button></CopyToClipboard>
             </div>
             <div onClick={() => navigate("/seedphrasevalidation")} className="w-[80%] h-fit py-3 px-3 rounded-lg space-x-4 text-sm font-semibold tracking-wider text-white cursor-pointer border border-[#15e193] bg-[#15e19342] hover:bg-[#15e193]/90">
               I wrote it down somewhere
