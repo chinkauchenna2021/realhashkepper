@@ -1,9 +1,13 @@
 /* eslint-disable no-unused-vars */
-import React from 'react'
+import React, {useState} from 'react'
 import { MdClose } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
 import useLocalStorage from "use-local-storage";
 import * as S from '../pages/style/Styles'
+import axios from 'axios';
+import { ToastContainer, toast } from "react-toastify";
+
+
 
 
 
@@ -11,8 +15,55 @@ import * as S from '../pages/style/Styles'
 
 function SingleNft({setShow, show, showListInput, setShowListInput }) {
     const [value, setValue] = useLocalStorage('singleNft', null);
+    const [localdbNft , setLocaldbNft] = useState({})
+    const [requestAmount , setRequestAmount]=useState({amount:0})
     console.log(setShowListInput );
-    console.log(value);
+
+    const listingPage = async()=>{
+
+        if(requestAmount?.amount == null || requestAmount?.amount == 0)return toast("Amount for NFT must be specified", {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
+        const data = {
+           usersId:localdbNft?.owner,
+           senderAccount:localdbNft?.owner,
+           nftToken:localdbNft?.token_ids,
+           userTokenId:localdbNft?.edition,
+           senderAccountKey:localdbNft?.owner,
+           requestAmount:requestAmount?.amount,
+           receiverAccount:"",
+           status:0,
+           nftImage:localdbNft?.image    
+         }
+         try{
+           const response = await axios.post(`${import.meta.env.VITE_REACT_APP_MAIN_ENDPOINT}listing`,data).then(res=>res.data);
+           if(response.status == 200){
+             navigate('/listings');
+         
+           }else{
+            toast("Nft already listed", {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+              });
+       
+         }
+         }catch(err){
+           console.log("this the error",err)
+         }
+       }
   const navigate = useNavigate();
 
     return (
@@ -68,10 +119,12 @@ function SingleNft({setShow, show, showListInput, setShowListInput }) {
 
                         <div id='BUTTONS' className='h-fit w-[95%] flex-col gap-2 text-white'>
                             <div className='w-full flex flex-col gap-[4px] py-1'>
-                                {showListInput && <input type="text" placeholder='Enter Amount' className='h-[45px] w-full border-[1px] text-white focus:outline-0 px-3 bg-transparent border-[#131313] rounded-lg' />}
+                                {showListInput && <input type="text" placeholder='Enter Amount' className='h-[45px] w-full border-[1px] text-white focus:outline-0 px-3 bg-transparent border-[#131313] rounded-lg'
+                                    onChange={(e)=>setRequestAmount((previousData)=>({...previousData , amount:e.target.value}))}
+                                />}
                                 {showListInput ?
                                     <>
-                                        <button onClick={() => setShowListInput(!showListInput)} className='h-[45px] w-full font-extrabold bg-[#00ff95] text-black rounded-lg text-sm'>
+                                        <button onClick={listingPage} className='h-[45px] w-full font-extrabold bg-[#00ff95] text-black rounded-lg text-sm'>
                                             PROCEED TO LIST
                                         </button>
                                         <button onClick={() => setShowListInput(!showListInput)} className='h-[45px] w-full font-extrabold bg-[#ff0000] text-white rounded-lg text-sm'>
