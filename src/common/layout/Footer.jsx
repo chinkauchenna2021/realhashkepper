@@ -5,6 +5,8 @@ import { FaHome, FaChartArea, FaChartLine } from "react-icons/fa";
 import { MdFlashOn } from "react-icons/md";
 import { GlobalStyling } from '../globalStyles/Global';
 import { Link, useLocation  } from 'react-router-dom';
+import { ToastContainer, toast } from "react-toastify";
+
 // import Activities from '../pages/Activities';
 // 
 
@@ -33,12 +35,21 @@ function Footer() {
                 <div className='w-fit h-fit text-md font-semibold tracking-wide'>Home</div>
                 </div> 
               </Link>  
-              <Link to={"/governance"}>
-                <div className="flex flex-col justify-center  items-center hover:opacity-75 cursor-pointer space-y-2 text-white">
+                <div onClick={()=>toast("Coming soon", {
+              position: "top-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "dark",
+            })} 
+            className="flex flex-col justify-center  items-center hover:opacity-75 cursor-pointer space-y-2 text-white">
                   <div className='w-fit h-fit '><FaChartArea size={18} className={`${pathname==='/governance'?"text-[#00ff9d]/90":'text-white'}`}/></div>
                     <div className={`w-fit h-fit text-md font-semibold tracking-wide ${pathname==='/governance'?"text-[#00ff9d]/90":'text-white'}`}>Governance</div>
                 </div> 
-              </Link>
+
               <Link to={"/NFT"}>
                 <div className="flex flex-col justify-center items-center hover:opacity-75 cursor-pointer space-y-2 text-white">
                   <div className='w-fit h-fit'><FaChartLine size={18} className={`${pathname==='/NFT'?"text-[#00ff9d]/90":'text-white'}`} /></div>

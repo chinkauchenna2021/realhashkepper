@@ -22,13 +22,13 @@ function MainRouter() {
   return (
       <MemoryRouter>
           <Routes>
-              <Route path='/' element={<Welcome />} />
+              <Route path='/w' element={<Welcome />} />
               <Route path='/home' element={<Home  />} />
               {/* <Route path='/chart' element={<Charts  />} /> */}
               <Route path='/login' element={<Login/>} />
               <Route path='/nftswap' element={<NftSwap/>} />
               {/* <Route path='/nn' element={<IInput />} /> */}
-              <Route path='/register' element={<Register />} />
+              <Route path='/' element={<Register />} />
               <Route path='/seedphrase' element={<SeedPhrase />} />
               <Route path='/seedphrasevalidation' element={<SeedPhraseValidation />} />
               {/* <Route path='/accountname' element={<AccountName />} /> */}

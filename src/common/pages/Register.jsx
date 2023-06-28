@@ -19,7 +19,7 @@ const validationSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Required'),
   password1: Yup.string()
     .min(8, 'Password must be at least 8 characters long')
-    .matches(/^(.*[!@#$%^&*]){2}/, 'Password is not strong enough')
+    .matches(/^(.*[!@#$%^&*]){2}/, 'Password is not strong enough, must include two special characters')
     .required('Required'),
   password2: Yup.string()
     .oneOf([Yup.ref('password1'), null], 'Passwords must match')
@@ -66,6 +66,7 @@ function Register() {
     refetch,
   } = useQuery({ queryKey: ["usersAccount"], queryFn: fetchAccount });
 
+  console.log("queryUsersAccount");
   console.log(queryUsersAccount);
    
   // useEffect(() => {
